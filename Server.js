@@ -8,20 +8,23 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const cors = require('cors');
 
+dotenv.config();          // ✅ Load env first
+connectDB();              // ✅ Connect to DB
 
-dotenv.config();
-connectDB();
+const app = express();    // ✅ Initialize app before use
 
-const app = express();
-
+// ✅ Apply CORS before anything else
 app.use(cors({
-  origin: '*', 
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
+
+// ✅ Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// ✅ Session management
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'your-session-secret',
@@ -38,11 +41,13 @@ app.use(
   })
 );
 
+// ✅ Routes and Swagger
 app.use('/api/users', require('./Routes/UserRoutes'));
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// ✅ Error handler
 app.use(errorHandler);
 
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
