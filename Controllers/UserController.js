@@ -73,9 +73,20 @@ const loginUser = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       phone: user.phone,
+      role: user.role,
     },
   });
 });
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find().select("-password"); // Exclude password field for security
+  res.status(200).json({
+    status: 200,
+    count: users.length,
+    users,
+  });
+});
 
-module.exports = { createUser, loginUser };
+
+
+module.exports = { createUser, loginUser, getAllUsers };

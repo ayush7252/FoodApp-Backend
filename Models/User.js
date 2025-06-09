@@ -33,8 +33,14 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     minlength: [6, "Password must be at least 6 characters"],
   },
+  role: {
+    type: String,
+    enum: ["customer", "seller", "admin"], 
+    default: "customer",
+  },
   createdAt: { type: Date, default: Date.now },
 });
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -43,6 +49,7 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
+
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
