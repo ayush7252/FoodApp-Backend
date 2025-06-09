@@ -16,6 +16,7 @@ const createUser = asyncHandler(async (req, res) => {
 
   if (user) {
     res.status(201).json({
+      status: 201,
       _id: user._id,
       username: user.username,
       email: user.email,
