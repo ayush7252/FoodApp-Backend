@@ -1,6 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { createUser, loginUser, getAllUsers } = require('../Controllers/UserController');
+const {
+  createUser,
+  loginUser,
+  getAllUsers,
+  deleteUser,
+  updateUser,
+} = require("../Controllers/UserController");
 
 /**
  * @swagger
@@ -195,8 +201,129 @@ const { createUser, loginUser, getAllUsers } = require('../Controllers/UserContr
  *                         example: 2025-06-09T12:00:00.000Z
  */
 
-router.post('/', createUser);
-router.post('/login', loginUser);
-router.get('/', getAllUsers);
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user ID
+ *     requestBody:
+ *       description: Fields to update (username, email, phone, password, role)
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: updateduser
+ *               email:
+ *                 type: string
+ *                 example: updated@example.com
+ *               phone:
+ *                 type: string
+ *                 example: +1234567890
+ *               password:
+ *                 type: string
+ *                 example: newpassword123
+ *               role:
+ *                 type: string
+ *                 example: admin
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: User updated successfully
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 507f1f77bcf86cd799439011
+ *                     username:
+ *                       type: string
+ *                       example: updateduser
+ *                     email:
+ *                       type: string
+ *                       example: updated@example.com
+ *                     phone:
+ *                       type: string
+ *                       example: +1234567890
+ *                     role:
+ *                       type: string
+ *                       example: admin
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ */
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: User deleted successfully
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ */
+
+router.post("/", createUser);
+router.post("/login", loginUser);
+router.get("/", getAllUsers);
+router.put("/:id", updateUser);
+router.delete("/:id", deleteUser);
 
 module.exports = router;

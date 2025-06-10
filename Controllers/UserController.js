@@ -43,8 +43,6 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error("Invalid email or password");
   }
-
-  // Check if phone matches
   if (user.phone !== phone) {
     res.status(401);
     throw new Error("Phone number does not match the registered number");
@@ -87,6 +85,57 @@ const getAllUsers = asyncHandler(async (req, res) => {
   });
 });
 
+const deleteUser = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  await user.remove();
+
+  res.status(200).json({
+    status: 200,
+    message: "User deleted successfully",
+  });
+});
+
+const updateUser = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+  user.username = req.body.username || user.username;
+  user.email = req.body.email || user.email;
+  user.phone = req.body.phone || user.phone;
+  if (req.body.password) {
+    user.password = req.body.password;
+  }
+  if (req.body.role) {
+    user.role = req.body.role;
+  }
+
+  const updatedUser = await user.save();
+
+  res.status(200).json({
+    status: 200,
+    message: "User updated successfully",
+    user: {
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      role: updatedUser.role,
+    },
+  });
+});
 
 
-module.exports = { createUser, loginUser, getAllUsers };
+
+
+module.exports = { createUser, loginUser, getAllUsers, deleteUser, updateUser };
