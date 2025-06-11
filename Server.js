@@ -39,7 +39,7 @@ app.use(
 
 app.use('/api/users', require('./Routes/UserRoutes'));
 app.use('/api/restaurants', require('./Routes/ResturantRoutes'));
-app.use('/', require('./Routes/NotificationRoutes'));
+app.use('/api/', require('./Routes/NotificationRoutes'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
