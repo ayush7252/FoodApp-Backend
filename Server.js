@@ -15,7 +15,7 @@ const app = express();
 
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   credentials: true,
 }));
 app.use(express.json());
@@ -38,6 +38,8 @@ app.use(
 );
 
 app.use('/api/users', require('./Routes/UserRoutes'));
+app.use('/api/restaurants', require('./Routes/ResturantRoutes'));
+app.use('/', require('./Routes/NotificationRoutes'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
