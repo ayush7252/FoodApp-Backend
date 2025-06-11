@@ -12,11 +12,10 @@ const createSellerNotification = async (req, res) => {
       picture,
       tagline,
       timestamp,
-      accessKey,
       ownerName
     } = req.body;
 
-    // Basic required field validation
+    // Validate required fields
     if (
       !requestType ||
       !name ||
@@ -25,53 +24,53 @@ const createSellerNotification = async (req, res) => {
       !phone ||
       !email ||
       !timestamp ||
-      !accessKey ||
       !ownerName
     ) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing required fields" });
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
     }
 
-    // Address field validation
+    // Address validation
     if (
       !address.street ||
       !address.city ||
       !address.state ||
       !address.zipCode
     ) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All address fields are required" });
+      return res.status(400).json({
+        success: false,
+        message: "All address fields are required"
+      });
     }
 
     // Phone format validation
     if (!/^\d{10}$/.test(phone)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid phone number format" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid phone number format"
+      });
     }
 
     // Email format validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid email format" });
-    }
-
-    // Access key validation (must be a 4-digit number)
-    if (!/^\d{4}$/.test(accessKey)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Access key must be a 4-digit number" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format"
+      });
     }
 
     // Owner name validation
     if (typeof ownerName !== 'string' || ownerName.trim().length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Owner name is required" });
+      return res.status(400).json({
+        success: false,
+        message: "Owner name is required"
+      });
     }
+
+    // 🔐 Generate a random 4-digit access key
+    const accessKey = Math.floor(1000 + Math.random() * 9000).toString();
 
     // Create new notification
     const notification = new Notification({
@@ -83,7 +82,7 @@ const createSellerNotification = async (req, res) => {
       email,
       picture,
       tagline,
-      accessKey,
+      accessKey, // generated in backend
       ownerName,
       timestamp: new Date(timestamp),
       status: "pending"

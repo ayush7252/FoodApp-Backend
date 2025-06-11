@@ -51,7 +51,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   accessKey: {
     type: String,
-    required: [false, 'Access key is required'],
+    required: [true, 'Access key is required'],
     match: [/^\d{4}$/, 'Access key must be a 4-digit number']
   },
   ownerName: {
