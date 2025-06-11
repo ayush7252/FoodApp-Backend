@@ -40,10 +40,12 @@ const NotificationSchema = new mongoose.Schema({
   },
   picture: {
     type: String,
+    required: false,
     trim: true
   },
   tagline: {
     type: String,
+    required: false,
     trim: true,
     maxlength: [200, 'Tagline cannot exceed 200 characters']
   },
