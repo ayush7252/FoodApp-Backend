@@ -1,10 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   createSellerNotification,
   getAllNotifications,
   updateNotificationStatus,
-} = require('../Controllers/NotificationController');
+  getNotificationById,
+  deleteNotification,
+} = require("../Controllers/NotificationController");
 
 /**
  * @swagger
@@ -381,9 +383,52 @@ const {
  *                   type: string
  *                   example: Internal server error
  */
+/**
+ * @swagger
+ * /admin/notifications/{id}:
+ *   get:
+ *     summary: Get a notification by ID
+ *     tags: [Notifications]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Notification ID
+ *     responses:
+ *       200:
+ *         description: Notification retrieved successfully
+ *       404:
+ *         description: Notification not found
+ */
+/**
+ * @swagger
+ * /admin/notifications/{id}:
+ *   delete:
+ *     summary: Delete a rejected notification
+ *     tags: [Notifications]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Notification ID
+ *     responses:
+ *       200:
+ *         description: Notification deleted successfully
+ *       400:
+ *         description: Only rejected notifications can be deleted
+ *       404:
+ *         description: Notification not found
+ */
 
-router.post('/admin/notify', createSellerNotification);
-router.get('/admin/notifications', getAllNotifications);
-router.patch('/admin/notifications/:id', updateNotificationStatus);
+
+router.post("/admin/notify", createSellerNotification);
+router.get("/admin/notifications", getAllNotifications);
+router.patch("/admin/notifications/:id", updateNotificationStatus);
+router.get('/admin/notifications/:id', getNotificationById);
+router.delete('/admin/notifications/:id', deleteNotification);
 
 module.exports = router;

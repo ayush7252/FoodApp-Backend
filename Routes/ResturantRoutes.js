@@ -31,7 +31,7 @@ const {
  *               - name
  *               -               - cuisine
  *             properties:
-               *               name:
+ *               name:
  *                 type: string
  *                 description: Name of the restaurant
  *                 example: Cafe Mocha
@@ -51,7 +51,8 @@ const {
  *                     example: New York
  *                   state:
  *                     type: string
- *                     example: NY                    *                   zipCode:
+ *                     example: NY                   
+ *                   zipCode:
  *                     type: string
  *                     example: 10001
  *               phone:

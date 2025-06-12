@@ -10,16 +10,16 @@ const options = {
     },
     servers: [
       {
-        url: "https://foodapp-backend-a3ew.onrender.com", // ✅ Change this
-        description: "Production server (Render)",
-      },
-      {
         url: "http://localhost:5000",
         description: "Local development server",
       },
+      {
+        url: "https://foodapp-backend-a3ew.onrender.com", // ✅ Change this
+        description: "Production server (Render)",
+      },
     ],
   },
-  apis: ["./routes/UserRoutes.js"],
+  apis: ["./routes/UserRoutes.js", "./routes/ResturantRoutes.js", "./routes/NotificationRoutes.js"], 
 };
 
 const swaggerSpec = swaggerJSDoc(options);
