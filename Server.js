@@ -8,16 +8,19 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const cors = require('cors');
 
-dotenv.config();         
-connectDB();             
+dotenv.config();
+connectDB();
 
-const app = express();  
+const app = express();
 
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -40,6 +43,10 @@ app.use(
 app.use('/api/users', require('./Routes/UserRoutes'));
 app.use('/api/restaurants', require('./Routes/ResturantRoutes'));
 app.use('/api/', require('./Routes/NotificationRoutes'));
+
+// Add this line to include your email routes
+app.use('/api/email', require('./Routes/EmailRoutes'));
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
