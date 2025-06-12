@@ -6,6 +6,7 @@ const {
   getRestaurant,
   updateRestaurant,
   deleteRestaurant,
+  getAccessKeyByEmail,
 } = require("../Controllers/ResturantController");
 
 /**
@@ -429,10 +430,72 @@ const {
  *                   example: Restaurant not found
  */
 
+/**
+ * @swagger
+ * /api/restaurants/get-accesskey-by-email:
+ *   post:
+ *     summary: Get access key by registered email
+ *     tags: [Restaurants]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: example@restaurant.com
+ *     responses:
+ *       200:
+ *         description: Access key fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 accessKey:
+ *                   type: string
+ *                   example: "4923"
+ *       400:
+ *         description: Missing email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: Email is required
+ *       404:
+ *         description: Email not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: Restaurant with this email not found
+ */
+
 router.post("/", createRestaurant);
 router.get("/", getAllRestaurants);
 router.get("/:id", getRestaurant);
 router.put("/:id", updateRestaurant);
 router.delete("/:id", deleteRestaurant);
+router.post("/get-accesskey-by-email", getAccessKeyByEmail);
 
 module.exports = router;

@@ -158,4 +158,39 @@ const deleteRestaurant = async (req, res) => {
   }
 };
 
-module.exports = { createRestaurant, getAllRestaurants, getRestaurant, updateRestaurant, deleteRestaurant };
+// Get access key by registered email
+const getAccessKeyByEmail = async (req, res) => {
+  try {
+    const { email } = req.body; // Or use req.query if using GET request
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required'
+      });
+    }
+
+    const restaurant = await Restaurant.findOne({ email });
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        error: 'Restaurant with this email not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      accessKey: restaurant.accessKey
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
+module.exports = { createRestaurant, getAllRestaurants, getRestaurant, updateRestaurant, deleteRestaurant, getAccessKeyByEmail };
