@@ -11,6 +11,12 @@ const deleteImageFile = (filePath) => {
   }
 };
 
+// Helper to generate picture URL for Render
+const getPictureUrl = (picturePath) => {
+  if (!picturePath) return null;
+  return `http://foodapp-backend-a3ew.onrender.com/${picturePath.replace(/\\/g, '/')}`;
+};
+
 const createSellerNotification = async (req, res) => {
   try {
     const {
@@ -89,7 +95,10 @@ const createSellerNotification = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Notification created successfully",
-      data: notification
+      data: {
+        ...notification.toObject(),
+        pictureUrl: getPictureUrl(notification.picture)
+      }
     });
 
   } catch (error) {
@@ -107,7 +116,10 @@ const getAllNotifications = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Notifications retrieved successfully",
-      data: notifications
+      data: notifications.map(n => ({
+        ...n.toObject(),
+        pictureUrl: getPictureUrl(n.picture)
+      }))
     });
   } catch (error) {
     console.error("Error retrieving notifications:", error);
@@ -131,7 +143,10 @@ const getNotificationById = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Notification retrieved successfully",
-      data: notification
+      data: {
+        ...notification.toObject(),
+        pictureUrl: getPictureUrl(notification.picture)
+      }
     });
   } catch (error) {
     console.error("Error retrieving notification by ID:", error);
@@ -179,7 +194,10 @@ const updateNotificationStatus = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Notification status updated successfully",
-      data: notification
+      data: {
+        ...notification.toObject(),
+        pictureUrl: getPictureUrl(notification.picture)
+      }
     });
 
   } catch (error) {
