@@ -7,6 +7,7 @@ const {
   getNotificationById,
   deleteNotification,
 } = require("../Controllers/NotificationController");
+const upload = require("../Middleware/upload");
 
 /**
  * @swagger
@@ -425,7 +426,8 @@ const {
  */
 
 
-router.post("/admin/notify", createSellerNotification);
+// router.post("/admin/notify", createSellerNotification);
+router.post("/admin/notify", upload.single("picture"), createSellerNotification);
 router.get("/admin/notifications", getAllNotifications);
 router.patch("/admin/notifications/:id", updateNotificationStatus);
 router.get('/admin/notifications/:id', getNotificationById);

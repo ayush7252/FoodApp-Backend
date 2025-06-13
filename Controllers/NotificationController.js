@@ -1,4 +1,15 @@
+const fs = require("fs");
+const path = require("path");
 const Notification = require("../Models/Notification");
+
+// Helper to delete image file from storage
+const deleteImageFile = (filePath) => {
+  if (filePath) {
+    fs.unlink(path.resolve(filePath), (err) => {
+      if (err) console.error(`Failed to delete file: ${filePath}`, err);
+    });
+  }
+};
 
 const createSellerNotification = async (req, res) => {
   try {
@@ -9,13 +20,11 @@ const createSellerNotification = async (req, res) => {
       address,
       phone,
       email,
-      picture,
       tagline,
       timestamp,
       ownerName,
     } = req.body;
 
-    // Validate required fields
     if (
       !requestType ||
       !name ||
@@ -32,12 +41,25 @@ const createSellerNotification = async (req, res) => {
       });
     }
 
-    // Address validation
+    let addressObj;
+    if (typeof address === 'string') {
+      try {
+        addressObj = JSON.parse(address);
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid address format",
+        });
+      }
+    } else {
+      addressObj = address;
+    }
+
     if (
-      !address.street ||
-      !address.city ||
-      !address.state ||
-      !address.zipCode
+      !addressObj.street ||
+      !addressObj.city ||
+      !addressObj.state ||
+      !addressObj.zipCode
     ) {
       return res.status(400).json({
         success: false,
@@ -45,7 +67,6 @@ const createSellerNotification = async (req, res) => {
       });
     }
 
-    // Phone format validation
     if (!/^\d{10}$/.test(phone)) {
       return res.status(400).json({
         success: false,
@@ -53,7 +74,6 @@ const createSellerNotification = async (req, res) => {
       });
     }
 
-    // Email format validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({
         success: false,
@@ -61,7 +81,6 @@ const createSellerNotification = async (req, res) => {
       });
     }
 
-    // Owner name validation
     if (typeof ownerName !== "string" || ownerName.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -69,21 +88,21 @@ const createSellerNotification = async (req, res) => {
       });
     }
 
-    // 🔐 Generate a random 4-digit access key
+    const picturePath = req.file ? req.file.path : null;
+
     const accessKey = Math.floor(1000 + Math.random() * 9000).toString();
 
-    // Create new notification
     const notification = new Notification({
       requestType,
-      name,
-      cuisine,
-      address,
-      phone,
-      email,
-      picture,
-      tagline,
-      accessKey, // generated in backend
-      ownerName,
+      name: name.trim(),
+      cuisine: cuisine.trim(),
+      address: addressObj,
+      phone: phone.trim(),
+      email: email.trim(),
+      tagline: tagline?.trim(),
+      picture: picturePath,
+      accessKey,
+      ownerName: ownerName.trim(),
       timestamp: new Date(timestamp),
       status: "pending",
     });
@@ -127,20 +146,33 @@ const updateNotificationStatus = async (req, res) => {
     const { status } = req.body;
 
     if (!["pending", "approved", "rejected"].includes(status)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid status value" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
     }
+
+    // If image is provided, update it as well
+    const updateData = { status };
+    if (req.file) {
+      const existing = await Notification.findById(id);
+      if (existing && existing.picture) {
+        deleteImageFile(existing.picture);
+      }
+      updateData.picture = req.file.path;
+    }
+
     const notification = await Notification.findByIdAndUpdate(
       id,
-      { status },
+      updateData,
       { new: true, runValidators: true }
     );
 
     if (!notification) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Notification not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found",
+      });
     }
 
     res.status(200).json({
@@ -160,7 +192,6 @@ const updateNotificationStatus = async (req, res) => {
 const getNotificationById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const notification = await Notification.findById(id);
 
     if (!notification) {
@@ -187,7 +218,6 @@ const getNotificationById = async (req, res) => {
 const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
-
     const notification = await Notification.findById(id);
 
     if (!notification) {
@@ -202,6 +232,10 @@ const deleteNotification = async (req, res) => {
         success: false,
         message: "Only rejected notifications can be deleted",
       });
+    }
+
+    if (notification.picture) {
+      deleteImageFile(notification.picture);
     }
 
     await Notification.findByIdAndDelete(id);

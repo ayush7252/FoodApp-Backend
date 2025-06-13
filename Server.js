@@ -43,6 +43,8 @@ app.use(
 app.use('/api/users', require('./Routes/UserRoutes'));
 app.use('/api/restaurants', require('./Routes/ResturantRoutes'));
 app.use('/api/', require('./Routes/NotificationRoutes'));
+app.use('/uploads', express.static('uploads')); // Serve images statically
+
 
 // Add this line to include your email routes
 app.use('/api/email', require('./Routes/EmailRoutes'));
