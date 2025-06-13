@@ -46,7 +46,7 @@ app.use(
 );
 
 // Static file serving for uploads (e.g., images)
-app.use('/uploads', express.static('uploads'));
+app.use('/Uploads', express.static('uploads'));
 
 // Routes
 app.use('/api/users', require('./Routes/UserRoutes'));
