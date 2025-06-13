@@ -104,19 +104,10 @@ const createSellerNotification = async (req, res) => {
 const getAllNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find().sort({ timestamp: -1 });
-
-    // Build full image URL
-    const host = req.protocol + '://' + req.get('host');
-
-    const dataWithImageUrl = notifications.map(notification => ({
-      ...notification.toObject(),
-      pictureUrl: notification.picture ? `${host}/${notification.picture.replace(/\\/g, '/')}` : null
-    }));
-
     res.status(200).json({
       success: true,
       message: "Notifications retrieved successfully",
-      data: dataWithImageUrl
+      data: notifications
     });
   } catch (error) {
     console.error("Error retrieving notifications:", error);
@@ -126,7 +117,6 @@ const getAllNotifications = async (req, res) => {
     });
   }
 };
-
 
 const getNotificationById = async (req, res) => {
   try {
