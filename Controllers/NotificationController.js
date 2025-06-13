@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const Notification = require("../Models/Notification");
 
-// Helper to delete image file from storage
+// Helper to delete image file
 const deleteImageFile = (filePath) => {
   if (filePath) {
     fs.unlink(path.resolve(filePath), (err) => {
@@ -22,74 +22,51 @@ const createSellerNotification = async (req, res) => {
       email,
       tagline,
       timestamp,
-      ownerName,
+      ownerName
     } = req.body;
 
     if (
-      !requestType ||
-      !name ||
-      !cuisine ||
-      !address ||
-      !phone ||
-      !email ||
-      !timestamp ||
-      !ownerName
+      !requestType || !name || !cuisine || !address ||
+      !phone || !email || !timestamp || !ownerName
     ) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields",
+        message: "Missing required fields"
       });
     }
 
     let addressObj;
-    if (typeof address === 'string') {
-      try {
-        addressObj = JSON.parse(address);
-      } catch (err) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid address format",
-        });
-      }
-    } else {
-      addressObj = address;
-    }
-
-    if (
-      !addressObj.street ||
-      !addressObj.city ||
-      !addressObj.state ||
-      !addressObj.zipCode
-    ) {
+    try {
+      addressObj = typeof address === 'string' ? JSON.parse(address) : address;
+    } catch {
       return res.status(400).json({
         success: false,
-        message: "All address fields are required",
+        message: "Invalid address format"
+      });
+    }
+
+    if (!addressObj.street || !addressObj.city || !addressObj.state || !addressObj.zipCode) {
+      return res.status(400).json({
+        success: false,
+        message: "All address fields are required"
       });
     }
 
     if (!/^\d{10}$/.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid phone number format",
+        message: "Invalid phone number format"
       });
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email format",
-      });
-    }
-
-    if (typeof ownerName !== "string" || ownerName.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Owner name is required",
+        message: "Invalid email format"
       });
     }
 
     const picturePath = req.file ? req.file.path : null;
-
     const accessKey = Math.floor(1000 + Math.random() * 9000).toString();
 
     const notification = new Notification({
@@ -104,7 +81,7 @@ const createSellerNotification = async (req, res) => {
       accessKey,
       ownerName: ownerName.trim(),
       timestamp: new Date(timestamp),
-      status: "pending",
+      status: "pending"
     });
 
     await notification.save();
@@ -112,13 +89,14 @@ const createSellerNotification = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Notification created successfully",
-      data: notification,
+      data: notification
     });
+
   } catch (error) {
     console.error("Error creating notification:", error);
     res.status(500).json({
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: error.message || "Internal server error"
     });
   }
 };
@@ -129,13 +107,37 @@ const getAllNotifications = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Notifications retrieved successfully",
-      data: notifications,
+      data: notifications
     });
   } catch (error) {
     console.error("Error retrieving notifications:", error);
     res.status(500).json({
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: error.message || "Internal server error"
+    });
+  }
+};
+
+const getNotificationById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await Notification.findById(id);
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found"
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Notification retrieved successfully",
+      data: notification
+    });
+  } catch (error) {
+    console.error("Error retrieving notification by ID:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error"
     });
   }
 };
@@ -148,12 +150,12 @@ const updateNotificationStatus = async (req, res) => {
     if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid status value",
+        message: "Invalid status value"
       });
     }
 
-    // If image is provided, update it as well
     const updateData = { status };
+
     if (req.file) {
       const existing = await Notification.findById(id);
       if (existing && existing.picture) {
@@ -162,55 +164,29 @@ const updateNotificationStatus = async (req, res) => {
       updateData.picture = req.file.path;
     }
 
-    const notification = await Notification.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const notification = await Notification.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true
+    });
 
     if (!notification) {
       return res.status(404).json({
         success: false,
-        message: "Notification not found",
+        message: "Notification not found"
       });
     }
 
     res.status(200).json({
       success: true,
       message: "Notification status updated successfully",
-      data: notification,
+      data: notification
     });
+
   } catch (error) {
     console.error("Error updating notification status:", error);
     res.status(500).json({
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
-    });
-  }
-};
-
-const getNotificationById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const notification = await Notification.findById(id);
-
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        message: "Notification not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Notification retrieved successfully",
-      data: notification,
-    });
-  } catch (error) {
-    console.error("Error retrieving notification by ID:", error);
-    res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: error.message || "Internal server error"
     });
   }
 };
@@ -223,14 +199,14 @@ const deleteNotification = async (req, res) => {
     if (!notification) {
       return res.status(404).json({
         success: false,
-        message: "Notification not found",
+        message: "Notification not found"
       });
     }
 
     if (notification.status !== "rejected") {
       return res.status(400).json({
         success: false,
-        message: "Only rejected notifications can be deleted",
+        message: "Only rejected notifications can be deleted"
       });
     }
 
@@ -242,13 +218,14 @@ const deleteNotification = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Notification deleted successfully",
+      message: "Notification deleted successfully"
     });
+
   } catch (error) {
     console.error("Error deleting notification:", error);
     res.status(500).json({
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: error.message || "Internal server error"
     });
   }
 };
@@ -256,7 +233,7 @@ const deleteNotification = async (req, res) => {
 module.exports = {
   createSellerNotification,
   getAllNotifications,
-  updateNotificationStatus,
   getNotificationById,
-  deleteNotification,
+  updateNotificationStatus,
+  deleteNotification
 };
