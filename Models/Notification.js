@@ -40,7 +40,7 @@ const NotificationSchema = new mongoose.Schema({
   },
   picture: {
     type: String,
-    required: false,
+    required: true,
     trim: true
   },
   tagline: {
