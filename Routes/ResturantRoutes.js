@@ -7,6 +7,7 @@ const {
   updateRestaurant,
   deleteRestaurant,
   getAccessKeyByEmail,
+  getRestaurantByAccessKey
 } = require("../Controllers/ResturantController");
 
 /**
@@ -497,5 +498,6 @@ router.get("/:id", getRestaurant);
 router.put("/:id", updateRestaurant);
 router.delete("/:id", deleteRestaurant);
 router.post("/get-accesskey-by-email", getAccessKeyByEmail);
+router.get('/by-access-key/:accessKey', getRestaurantByAccessKey);
 
 module.exports = router;
