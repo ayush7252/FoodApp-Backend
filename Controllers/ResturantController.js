@@ -1,52 +1,45 @@
 const Restaurant = require('../Models/Resturant');
 
-// Helper function to generate a random 4-digit number
-const generateAccessKey = () => {
-  return Math.floor(1000 + Math.random() * 9000).toString().padStart(4, '0');
-};
-
-// Helper function to generate a unique access key
-const getUniqueAccessKey = async () => {
-  let accessKey;
-  let isUnique = false;
-  const maxAttempts = 10; // Prevent infinite loops
-
-  for (let i = 0; i < maxAttempts; i++) {
-    accessKey = generateAccessKey();
-    const existingRestaurant = await Restaurant.findOne({ accessKey });
-    if (!existingRestaurant) {
-      isUnique = true;
-      break;
-    }
-  }
-
-  if (!isUnique) {
-    throw new Error('Unable to generate a unique access key after multiple attempts');
-  }
-
-  return accessKey;
-};
-
 // Create a new restaurant
 const createRestaurant = async (req, res) => {
   try {
-    // Generate a unique access key
-    const accessKey = await getUniqueAccessKey();
+    const { accessKey } = req.body;
 
-    // Add accessKey to the request body
-    const restaurantData = {
-      ...req.body,
-      accessKey
-    };
+    if (!accessKey) {
+      return res.status(400).json({
+        success: false,
+        error: 'Access key is required'
+      });
+    }
 
-    const restaurant = await Restaurant.create(restaurantData);
+    // Check if accessKey is unique
+    const existingAccessKey = await Restaurant.findOne({ accessKey });
+    if (existingAccessKey) {
+      return res.status(400).json({
+        success: false,
+        error: 'Access key already exists. Please provide a unique access key.'
+      });
+    }
+
+    const restaurant = await Restaurant.create(req.body);
+
+    // Build pictureUrl
+    let pictureUrl = null;
+    if (restaurant.picture) {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      pictureUrl = `${baseUrl}/Uploads/${restaurant.picture.split('/').pop()}`;
+    }
+
     res.status(201).json({
       success: true,
-      data: restaurant
+      data: {
+        ...restaurant.toObject(),
+        pictureUrl
+      }
     });
+
   } catch (error) {
     if (error.code === 11000) {
-      // Handle duplicate key errors
       const field = Object.keys(error.keyValue)[0];
       return res.status(400).json({
         success: false,
@@ -64,10 +57,23 @@ const createRestaurant = async (req, res) => {
 const getAllRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.find();
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const updatedRestaurants = restaurants.map(r => {
+      let pictureUrl = null;
+      if (r.picture) {
+        pictureUrl = `${baseUrl}/Uploads/${r.picture.split('/').pop()}`;
+      }
+      return {
+        ...r.toObject(),
+        pictureUrl
+      };
+    });
+
     res.status(200).json({
       success: true,
-      count: restaurants.length,
-      data: restaurants
+      count: updatedRestaurants.length,
+      data: updatedRestaurants
     });
   } catch (error) {
     res.status(500).json({
@@ -87,10 +93,21 @@ const getRestaurant = async (req, res) => {
         error: 'Restaurant not found'
       });
     }
+
+    let pictureUrl = null;
+    if (restaurant.picture) {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      pictureUrl = `${baseUrl}/Uploads/${restaurant.picture.split('/').pop()}`;
+    }
+
     res.status(200).json({
       success: true,
-      data: restaurant
+      data: {
+        ...restaurant.toObject(),
+        pictureUrl
+      }
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -102,27 +119,38 @@ const getRestaurant = async (req, res) => {
 // Update a restaurant
 const updateRestaurant = async (req, res) => {
   try {
-    // Prevent updating accessKey
     if (req.body.accessKey) {
-      delete req.body.accessKey;
+      delete req.body.accessKey; // Prevent updating accessKey
     }
+
     const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
     });
+
     if (!restaurant) {
       return res.status(404).json({
         success: false,
         error: 'Restaurant not found'
       });
     }
+
+    let pictureUrl = null;
+    if (restaurant.picture) {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      pictureUrl = `${baseUrl}/Uploads/${restaurant.picture.split('/').pop()}`;
+    }
+
     res.status(200).json({
       success: true,
-      data: restaurant
+      data: {
+        ...restaurant.toObject(),
+        pictureUrl
+      }
     });
+
   } catch (error) {
     if (error.code === 11000) {
-      // Handle duplicate key errors
       const field = Object.keys(error.keyValue)[0];
       return res.status(400).json({
         success: false,
@@ -146,10 +174,12 @@ const deleteRestaurant = async (req, res) => {
         error: 'Restaurant not found'
       });
     }
+
     res.status(200).json({
       success: true,
       data: {}
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -158,11 +188,10 @@ const deleteRestaurant = async (req, res) => {
   }
 };
 
-// Get access key by registered email
+// Get access key by email
 const getAccessKeyByEmail = async (req, res) => {
   try {
-    const { email } = req.body; // Or use req.query if using GET request
-
+    const { email } = req.body;
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -171,7 +200,6 @@ const getAccessKeyByEmail = async (req, res) => {
     }
 
     const restaurant = await Restaurant.findOne({ email });
-
     if (!restaurant) {
       return res.status(404).json({
         success: false,
@@ -192,5 +220,11 @@ const getAccessKeyByEmail = async (req, res) => {
   }
 };
 
-
-module.exports = { createRestaurant, getAllRestaurants, getRestaurant, updateRestaurant, deleteRestaurant, getAccessKeyByEmail };
+module.exports = {
+  createRestaurant,
+  getAllRestaurants,
+  getRestaurant,
+  updateRestaurant,
+  deleteRestaurant,
+  getAccessKeyByEmail
+};
