@@ -121,12 +121,15 @@ const getRestaurantByAccessKey = async (req, res) => {
   try {
     const { accessKey } = req.params;
 
+
     if (!accessKey) {
       return res.status(400).json({
         success: false,
         error: 'Access key is required'
       });
     }
+
+    aaccessKey = accessKey.toString();
 
     const restaurant = await Restaurant.findOne({ accessKey });
 
