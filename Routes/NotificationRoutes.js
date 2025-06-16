@@ -70,7 +70,9 @@ const upload = require("../Middleware/upload");
  *       201:
  *         description: Notification created successfully
  *       400:
- *         description: Bad request (missing/invalid fields)
+ *         description: Bad request (missing/invalid fields or file upload error)
+ *       500:
+ *         description: Internal server error
  */
 
 /**
@@ -163,7 +165,22 @@ const upload = require("../Middleware/upload");
  */
 
 // ROUTES
-router.post("/admin/notify", upload.single("picture"), createSellerNotification);
+router.post("/admin/notify", (req, res, next) => {
+  console.log("Received request to /admin/notify");
+  upload.single("picture")(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      console.error("Multer error:", err.message);
+      return res.status(400).json({ error: `File upload error: ${err.message}` });
+    } else if (err) {
+      console.error("Upload error:", err.message);
+      return res.status(400).json({ error: `File upload error: ${err.message}` });
+    }
+    console.log("File upload processed:", req.file ? req.file.filename : "No file uploaded");
+    // Proceed to controller even if no file is uploaded (assuming picture is optional)
+    createSellerNotification(req, res, next);
+  });
+});
+
 router.get("/admin/notifications", getAllNotifications);
 router.patch("/admin/notifications/:id", updateNotificationStatus);
 router.get("/admin/notifications/:id", getNotificationById);

@@ -14,7 +14,7 @@ const deleteImageFile = (filePath) => {
 // Helper: generate Render picture URL
 const getPictureUrl = (picturePath) => {
   if (!picturePath) return null;
-  return `http://foodapp-backend-a3ew.onrender.com/Uploads/${path.basename(picturePath)}`;
+  return `https://foodapp-backend-a3ew.onrender.com/Uploads/${path.basename(picturePath)}`;
 };
 
 // Create a seller notification
