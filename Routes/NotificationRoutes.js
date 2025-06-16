@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer"); // Added multer import
 const {
   createSellerNotification,
   getAllNotifications,
