@@ -46,8 +46,13 @@ app.use(
   })
 );
 
-// Static file serving for uploads (e.g., images)
-app.use('/Middleware/Uploads', express.static(path.join(__dirname, 'Middleware/Uploads')));
+// Static file serving for uploads
+app.use('/Uploads', express.static(path.join(__dirname, 'Middleware/Uploads'), {
+  setHeaders: (res, path) => {
+    console.log(`Serving static file: ${path}`);
+  }
+}));
+
 // Routes
 app.use('/api/users', require('./Routes/UserRoutes'));
 app.use('/api/restaurants', require('./Routes/ResturantRoutes'));

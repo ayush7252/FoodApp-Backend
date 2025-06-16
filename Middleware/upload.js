@@ -2,8 +2,8 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-// Define uploads directory (relative to the project root for reliability)
-const UPLOADS_DIR = path.join(__dirname, "Uploads");
+// Define uploads directory
+const UPLOADS_DIR = path.join(__dirname, "Uploads"); // Resolves to /opt/render/project/src/Middleware/Uploads
 
 // Ensure uploads folder exists with error handling
 try {
@@ -15,7 +15,7 @@ try {
   }
 } catch (err) {
   console.error(`Failed to create Uploads directory: ${err.message}`);
-  throw err; // Stop execution if folder creation fails
+  throw err;
 }
 
 // Check write permissions
@@ -45,7 +45,6 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
-    // Optional: Restrict file types (e.g., images only)
     const filetypes = /jpeg|jpg|png|gif/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
