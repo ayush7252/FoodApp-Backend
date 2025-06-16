@@ -121,49 +121,47 @@ const getRestaurantByAccessKey = async (req, res) => {
   try {
     const { accessKey } = req.params;
 
+
     if (!accessKey) {
       return res.status(400).json({
         success: false,
-        error: 'Access key is required',
+        error: 'Access key is required'
       });
     }
 
-    const restaurant = await Restaurant.findOne({ accessKey: accessKey.toString() });
+    aaccessKey = accessKey.toString();
+
+    const restaurant = await Restaurant.findOne({ accessKey });
 
     if (!restaurant) {
       return res.status(404).json({
         success: false,
-        error: 'Restaurant with this access key not found',
+        error: 'Restaurant with this access key not found'
       });
     }
 
     let pictureUrl = null;
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    
     if (restaurant.picture) {
-      // If picture is a URL (e.g., "https://example.com/restaurant.jpg"), extract the file name
-      // If picture is a file path (e.g., "/opt/render/project/src/Uploads/1749809773460-193589079.jpg"), extract the file name
-      const fileName = restaurant.picture.split('/').pop();
-      pictureUrl = `${baseUrl}/Uploads/${fileName}`;
-      
-      // Optionally, normalize picture to a URL format for consistency
-      restaurant.picture = pictureUrl; // This updates the response, not the database
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      pictureUrl = `${baseUrl}/Uploads/${restaurant.picture.split('/').pop()}`;
     }
 
     res.status(200).json({
       success: true,
       data: {
         ...restaurant.toObject(),
-        pictureUrl,
-      },
+        pictureUrl
+      }
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 };
+
 
 // Update a restaurant
 const updateRestaurant = async (req, res) => {
