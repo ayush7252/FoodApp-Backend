@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer"); // Added multer import
+const multer = require("multer");
 const {
   createSellerNotification,
   getAllNotifications,
@@ -70,6 +70,16 @@ const upload = require("../Middleware/upload");
  *     responses:
  *       201:
  *         description: Notification created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 pictureUrl:
+ *                   type: string
+ *                   example: /Uploads/1750065977729-272978945.jpg
  *       400:
  *         description: Bad request (missing/invalid fields or file upload error)
  *       500:
@@ -177,7 +187,10 @@ router.post("/admin/notify", (req, res, next) => {
       return res.status(400).json({ error: `File upload error: ${err.message}` });
     }
     console.log("File upload processed:", req.file ? req.file.filename : "No file uploaded");
-    // Proceed to controller even if no file is uploaded (assuming picture is optional)
+    // Add file URL to request object for the controller
+    if (req.file) {
+      req.fileUrl = `/Uploads/${req.file.filename}`;
+    }
     createSellerNotification(req, res, next);
   });
 });
