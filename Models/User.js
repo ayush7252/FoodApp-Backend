@@ -35,8 +35,14 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["customer", "seller", "admin"], 
+    enum: ["customer", "seller", "admin"],
     default: "customer",
+  },
+  profilePhotoPath: {
+    type: String, // Absolute path, e.g., /opt/render/project/src/Middleware/Uploads/1234567890-123456789.jpg
+  },
+  profilePhotoUrl: {
+    type: String, // Relative URL, e.g., /Uploads/1234567890-123456789.jpg
   },
   createdAt: { type: Date, default: Date.now },
 });
