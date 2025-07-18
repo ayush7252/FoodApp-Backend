@@ -32,10 +32,10 @@ const options = {
     }]
   },
   apis: [
-    "./routes/UserRoutes.js", 
-    "./routes/ResturantRoutes.js", 
-    "./routes/NotificationRoutes.js",
-    "./routes/EmailRoutes.js"
+    "./Routes/UserRoutes.js", 
+    "./Routes/ResturantRoutes.js", 
+    "./Routes/NotificationRoutes.js",
+    "./Routes/EmailRoutes.js"
   ],
   // Enable this for production to fix path issues
   explorer: true
