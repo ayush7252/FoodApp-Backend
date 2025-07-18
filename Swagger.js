@@ -14,12 +14,31 @@ const options = {
         description: "Local development server",
       },
       {
-        url: "https://foodapp-backend-a3ew.onrender.com", // ✅ Change this
+        url: "https://foodapp-backend-a3ew.onrender.com",
         description: "Production server (Render)",
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
+        }
+      }
+    },
+    security: [{
+      bearerAuth: []
+    }]
   },
-  apis: ["./routes/UserRoutes.js", "./routes/ResturantRoutes.js", "./routes/NotificationRoutes.js"], 
+  apis: [
+    "./routes/UserRoutes.js", 
+    "./routes/ResturantRoutes.js", 
+    "./routes/NotificationRoutes.js",
+    "./routes/EmailRoutes.js"
+  ],
+  // Enable this for production to fix path issues
+  explorer: true
 };
 
 const swaggerSpec = swaggerJSDoc(options);

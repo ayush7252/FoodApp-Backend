@@ -59,8 +59,28 @@ app.use('/api/restaurants', require('./Routes/ResturantRoutes'));
 app.use('/api', require('./Routes/NotificationRoutes'));
 app.use('/api/email', require('./Routes/EmailRoutes'));
 
-// Swagger docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger UI configuration
+const swaggerUiOptions = {
+  explorer: true,
+  customSiteTitle: 'Food App API Documentation',
+  customCss: '.swagger-ui .topbar { display: none }',
+  swaggerOptions: {
+    docExpansion: 'list',
+    filter: true,
+    showRequestDuration: true,
+  }
+};
+
+// Serve Swagger docs
+app.use('/api-docs', 
+  swaggerUi.serve, 
+  swaggerUi.setup(swaggerSpec, swaggerUiOptions)
+);
+
+// Redirect root to API docs
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 // Error handling middleware
 app.use(errorHandler);
